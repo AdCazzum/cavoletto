@@ -17,8 +17,8 @@ const TESTNET_CHAIN_ID = 42069;
 const TESTNET_RPC_URL = "https://api.testnet.fhenix.zone:7747";
 
 const testnetConfig = {
-    chainId: TESTNET_CHAIN_ID,
-    url: TESTNET_RPC_URL,
+  chainId: TESTNET_CHAIN_ID,
+  url: TESTNET_RPC_URL,
 }
 
 

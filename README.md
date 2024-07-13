@@ -27,4 +27,5 @@ pnpm install
 pnpm localfhenix:start
 npx hardhat deploy
 npx hardhat test
+npx hardhat test --network localfhenix
 ```

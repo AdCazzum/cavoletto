@@ -1,12 +1,13 @@
 import { createFheInstance } from "../../utils/instance";
 import type { Signers } from "../types";
-import { shouldBehaveLikeCounter } from "./Inherit.behavior";
 import { deployInheritFixture, getTokensFromFaucet } from "./Inherit.fixture";
 import hre from "hardhat";
 import { expect } from "chai";
+import { waitForBlock } from "../../utils/block";
 
 
 import { FhenixClient, EncryptionTypes, EncryptedUint8 } from 'fhenixjs';
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 
 describe("Unit tests", function () {
@@ -16,11 +17,12 @@ describe("Unit tests", function () {
     // get tokens from faucet if we're on localfhenix and don't have a balance
     await getTokensFromFaucet();
     // deploy test contract
-    const { inheritanceManager, address } = await deployInheritFixture();
+    const { inheritanceManager, tokenERC20 } = await deployInheritFixture();
     this.inheritanceManager = inheritanceManager;
+    this.tokenERC20 = tokenERC20;
 
     // initiate fhenixjs
-    this.instance = await createFheInstance(hre, address);
+    this.instance = await createFheInstance(hre, await inheritanceManager.getAddress());
 
     // set admin account/signer
     const signers = await hre.ethers.getSigners();
@@ -30,24 +32,30 @@ describe("Unit tests", function () {
   });
 
   describe("Deploy", function () {
-    it("E2E", async function () {
+    before(async function () {
       // const amountToCount = 10;
 
       // const eAmountCount = await this.instance.instance.encrypt_uint32(
       // 	amountToCount,
       // );
-      // await this.inheritanceManager.connect(this.signers.admin).storeBeneficiaries(
-      // 	[await this.fhenixClient.encrypt_address(BigInt(0), EncryptionTypes.address)],
-      // 	[await this.fhenixClient.encrypt_address(BigInt(0), EncryptionTypes.address)],
-      // 	[0]
-      // );
 
-      await this.inheritanceManager.connect(this.signers.admin).foo123(
-	await this.fhenixClient.encrypt_address("0x0000000000000000000000000000000000000000")
+      const tx = await this.tokenERC20.connect(this.signers.admin).approve(await this.inheritanceManager.getAddress(), "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+      console.log(await this.tokenERC20.balanceOf(this.signers.admin.address))
+      // await tx.wait();
+
+    });
+    it("fgfdgf", async function() {
+      await this.inheritanceManager.connect(this.signers.admin).storeBeneficiaries(
+	[await this.fhenixClient.encrypt_address("0x0000000000000000000000000000000000000001")],
+	[await this.fhenixClient.encrypt_address(await this.tokenERC20.getAddress())],
+	[await this.fhenixClient.encrypt_uint32(0)]
       );
-
       
+      await this.inheritanceManager.connect(this.signers.admin).distributeInheritance();
 
+      console.log(await this.tokenERC20.getAddress());
+      console.log(await this.inheritanceManager.foo());
+      
       // await waitForBlock(hre);
 
       // const eAmount = await this.counter

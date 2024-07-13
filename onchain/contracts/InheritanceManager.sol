@@ -2,9 +2,12 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import "@fhenixprotocol/contracts/FHE.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Console} from "@fhenixprotocol/contracts/utils/debug/Console.sol";
 
 contract InheritanceManager {
     address public owner;
+
+    address public foo;
 
     struct EncryptedBeneficiary {
         eaddress encryptedAddress;
@@ -42,7 +45,7 @@ contract InheritanceManager {
         }
     }
 
-    function _storeBeneficiary(inEaddress calldata encryptedAddress, inEaddress calldata encryptedTokenAddress, inEuint32 calldata encryptedPercentage) internal {
+    function _storeBeneficiary(inEaddress calldata encryptedAddress, inEaddress calldata encryptedTokenAddress, inEuint32 calldata encryptedPercentage) public {
         encryptedBeneficiaries.push(EncryptedBeneficiary({
             encryptedAddress: FHE.asEaddress(encryptedAddress),
             encryptedTokenAddress: FHE.asEaddress(encryptedTokenAddress),
@@ -51,7 +54,10 @@ contract InheritanceManager {
     }
 
     function distributeInheritance() public {
+        Console.log("ciao");
+
         require(encryptedBeneficiaries.length > 0, "No beneficiaries stored");
+	Console.log("ciao");
 
         for (uint256 i = 0; i < encryptedBeneficiaries.length; i++) {
             eaddress encryptedBeneficiaryAddress = encryptedBeneficiaries[i].encryptedAddress;
@@ -63,13 +69,17 @@ contract InheritanceManager {
             address tokenAddress = FHE.decrypt(encryptedTokenAddress);
 
             // Calculate the amount to transfer based on encrypted percentage
+	    Console.log("ciao");
+	    Console.log(tokenAddress);
+	    foo = tokenAddress;
             uint256 tokenBalance = IERC20(tokenAddress).balanceOf(owner);
-            euint32 encryptedTokenBalance = FHE.asEuint32(tokenBalance);
-            euint32 encryptedAmount = (encryptedTokenBalance * encryptedPercentage) / FHE.asEuint32(100);
-            uint32 decryptedValue = FHE.decrypt(encryptedAmount);
+            // euint32 encryptedTokenBalance = FHE.asEuint32(tokenBalance);
+            // euint32 encryptedAmount = (encryptedTokenBalance * encryptedPercentage) / FHE.asEuint32(100);
+            // uint32 decryptedValue = FHE.decrypt(encryptedAmount);
 
             // Transfer the amount from the owner to the beneficiary
-            IERC20(tokenAddress).transferFrom(owner, beneficiaryAddress, decryptedValue);
+            // IERC20(tokenAddress).transferFrom(owner, beneficiaryAddress, decryptedValue);
+            // IERC20(tokenAddress).transferFrom(owner, beneficiaryAddress, 1);
         }
     }
 
