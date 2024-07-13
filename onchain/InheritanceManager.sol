@@ -26,9 +26,9 @@ contract InheritanceManager {
     }
 
     function storeBeneficiaries(
-        eaddress[] calldata encryptedAddresses,
-        eaddress[] calldata encryptedTokenAddresses,
-        euint32[] calldata encryptedPercentages
+        inEaddress[] calldata encryptedAddresses,
+        inEaddress[] calldata encryptedTokenAddresses,
+        inEuint32[] calldata encryptedPercentages
     ) public {
         require(msg.sender == owner, "Only owner can store beneficiaries");
         require(
@@ -42,11 +42,11 @@ contract InheritanceManager {
         }
     }
 
-    function _storeBeneficiary(eaddress encryptedAddress, eaddress encryptedTokenAddress, euint32 encryptedPercentage) internal {
+    function _storeBeneficiary(inEaddress calldata encryptedAddress, inEaddress calldata encryptedTokenAddress, inEuint32 calldata encryptedPercentage) internal {
         encryptedBeneficiaries.push(EncryptedBeneficiary({
-            encryptedAddress: encryptedAddress,
-            encryptedTokenAddress: encryptedTokenAddress,
-            encryptedPercentage: encryptedPercentage
+            encryptedAddress: FHE.asEaddress(encryptedAddress),
+            encryptedTokenAddress: FHE.asEaddress(encryptedTokenAddress),
+            encryptedPercentage: FHE.asEuint32(encryptedPercentage)
         }));
     }
 
