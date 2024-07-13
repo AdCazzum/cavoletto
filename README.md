@@ -1,4 +1,6 @@
-# Cavoletti
+# Cavoletto
+
+<img src="cavoletto.png" width="70%"/>
 
 ## Flows
 
