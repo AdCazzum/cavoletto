@@ -4,6 +4,12 @@
 
 ## Flows
 
+The DApp allows users to deploy smart contracts on the Fhenix testnet and specify a list of heirs and which percentages of which token they will inherit.
+Tokens can be both TEth, generic ERC-20 tokens and NFTs.
+All the information (hiers, tokens and percentages) will be stored on chain encrytped, so they will be secret as long as the testator is alive.
+When the testator/deployer will declared dead whoever will be able to trigger the contract and distribute the inheritance.
+As possible strategies for the proof of death we considered TLSNotary or simply a mechanism that automatically marks the testator as dead after a certain amount of time if he/she doesn't recurrently call a contract's method.
+
 ### Testator
 
 0. The wallet is connected
