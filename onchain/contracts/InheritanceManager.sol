@@ -33,7 +33,7 @@ contract InheritanceManager {
         inEaddress[] calldata encryptedTokenAddresses,
         inEuint32[] calldata encryptedPercentages
     ) public {
-        require(msg.sender == owner, "Only owner can store beneficiaries");
+        // require(msg.sender == owner, "Only owner can store beneficiaries");
         require(
             encryptedAddresses.length == encryptedTokenAddresses.length &&
             encryptedTokenAddresses.length == encryptedPercentages.length,
