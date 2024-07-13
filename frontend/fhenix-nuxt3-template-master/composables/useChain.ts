@@ -4,7 +4,10 @@ import { ethers } from "ethers";
 import { FhenixClient } from "fhenixjs";
 import type { SupportedProvider } from "fhenixjs";
 
-type ExtendedProvider = SupportedProvider & {  
+import { abi } from "../../../onchain/artifacts/contracts/InheritanceManager.sol/InheritanceManager.json"
+import { address as adress } from "../../../onchain/deployments/testnet/InheritanceManager.json"
+
+type ExtendedProvider = SupportedProvider & {
   getTransactionReceipt(txHash: string): Promise<ethers.TransactionReceipt>;
   send(method: string, params: any[] | Record<string, any>): Promise<any>;
   getSigner(): Promise<any>;
@@ -27,7 +30,7 @@ const balance = ref<string>("");
 const address = ref<string>("");
 
 export default function useChain() {
-  return { 
+  return {
     isItFhenixNetwork,
     balance,
     address,
@@ -35,7 +38,8 @@ export default function useChain() {
     fnxConnect,
     initFHEClient,
     getFheClient,
-    getBalance
+    getBalance,
+    storeBeneficiaries
   }
 }
 
@@ -55,19 +59,19 @@ async function fnxConnect() {
     if (provider === null)
       return;
 
-     const chainId = await provider.send('eth_chainId', []);
-     if (Number(chainId) !== Number(fnxChainId)) {
-       await addFhenixChain();
-     }
-     mmChainId.value = Number(chainId);
-     await switchEthereumChain(Number(chainId));
-     if (!eventWasAdded.value) {
+    const chainId = await provider.send('eth_chainId', []);
+    if (Number(chainId) !== Number(fnxChainId)) {
+      await addFhenixChain();
+    }
+    mmChainId.value = Number(chainId);
+    await switchEthereumChain(Number(chainId));
+    if (!eventWasAdded.value) {
       eventWasAdded.value = true;
-      setupMetaMaskListeners();          
-     }
-     localStorage.setItem("isConnected", "1");
-     balance.value = await getBalance(); 
-     initFHEClient();
+      setupMetaMaskListeners();
+    }
+    localStorage.setItem("isConnected", "1");
+    balance.value = await getBalance();
+    initFHEClient();
   } catch (err) {
     console.error('Error:', err);
   }
@@ -84,10 +88,10 @@ async function addFhenixChain() {
         blockExplorerUrls: [explorerURL]
       }];
       await provider.send("wallet_addEthereumChain", chainData);
-      console.log('Custom network added'); 
+      console.log('Custom network added');
     }
   } catch (addError) {
-      console.error('Error adding custom network:', addError);
+    console.error('Error adding custom network:', addError);
   }
 }
 
@@ -99,31 +103,31 @@ async function switchEthereumChain(chainId: number) {
 
     await provider.send('wallet_switchEthereumChain', [{ chainId: '0x' + (chainId).toString(16) }]);
     console.log('Switched to network:', chainId);
-    isItFhenixNetwork.value = Number(chainId) === Number(fnxChainId);          
+    isItFhenixNetwork.value = Number(chainId) === Number(fnxChainId);
   } catch (switchError: unknown) {
-      console.error('Error switching networks:', switchError);
-      if (switchError instanceof Error) {
-        const errorDetails = (switchError as any).error; // Using any to access nested properties
-        
-        if (errorDetails && errorDetails.code === ERROR_CHAIN_DOES_NOT_EXIST) {
-          addFhenixChain();
-        }
+    console.error('Error switching networks:', switchError);
+    if (switchError instanceof Error) {
+      const errorDetails = (switchError as any).error; // Using any to access nested properties
+
+      if (errorDetails && errorDetails.code === ERROR_CHAIN_DOES_NOT_EXIST) {
+        addFhenixChain();
       }
+    }
   }
 }
 
 async function setupMetaMaskListeners() {
   window.ethereum.on('accountsChanged', async (accounts: string[]) => {
-      console.log('Account changed:', accounts[0]);
-      provider = new ethers.BrowserProvider(window.ethereum);
+    console.log('Account changed:', accounts[0]);
+    provider = new ethers.BrowserProvider(window.ethereum);
   });
 
   // Listen for chain changes
   window.ethereum.on('chainChanged', async (chainId: number) => {
-      console.log('Network changed to:', chainId);
-      mmChainId.value = Number(chainId);
-      provider = new ethers.BrowserProvider(window.ethereum);
-      isItFhenixNetwork.value = Number(chainId) === Number(fnxChainId);
+    console.log('Network changed to:', chainId);
+    mmChainId.value = Number(chainId);
+    provider = new ethers.BrowserProvider(window.ethereum);
+    isItFhenixNetwork.value = Number(chainId) === Number(fnxChainId);
   });
 }
 
@@ -134,7 +138,7 @@ async function getBalance(): Promise<string> {
       const signer = await provider.getSigner();
       address.value = await signer.getAddress();
       const balance = await provider.getBalance(address.value);
-      
+
       if (balance) {
         returnBalance = `${Number(ethers.formatEther(balance))} ETH`;
       }
@@ -142,7 +146,21 @@ async function getBalance(): Promise<string> {
     }
     return returnBalance;
   } catch (error) {
-      console.error('Error getting balance:', error);
-      return "-1";
+    console.error('Error getting balance:', error);
+    return "-1";
+  }
+}
+
+async function storeBeneficiaries(eAddresses: string, eTokenAddresses: string, ePercentages: number): Promise<void> {
+  try {
+    if (provider !== null) {
+      const signer = await provider.getSigner();
+
+      const manager = new ethers.Contract(adress, abi, signer);
+
+      await manager.storeBeneficiaries([await getFheClient()?.encrypt_address(eAddresses)], [await getFheClient()?.encrypt_address(eTokenAddresses)], [await getFheClient()?.encrypt_uint32(ePercentages)]);
+    }
+  } catch (error) {
+    console.log("Error storeBeneficiaries", error)
   }
 }

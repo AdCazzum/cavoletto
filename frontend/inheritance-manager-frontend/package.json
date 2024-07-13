@@ -1,9 +1,0 @@
-{
-  "name": "inheritance-manager-frontend",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "ethers": "^6.13.1",
-    "fhenixjs": "^0.3.0"
-  }
-}

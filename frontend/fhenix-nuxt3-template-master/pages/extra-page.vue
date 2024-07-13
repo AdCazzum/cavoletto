@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="content">
-      <h1>Encrypt Addresses</h1>
+      <h1>Manage your Will</h1>
       <div class="address"><b>Connected Wallet Address:</b> {{ address }}</div>
       <div class="encrypt-form">
         <div class="form-group">
@@ -17,7 +17,7 @@
           <input ref="txtPercentage" id="percentage" class="form-control" type="number" placeholder="Enter Percentage" />
         </div>
         <button class="btn btn-primary" @click="encryptAddresses">Encrypt</button>
-        <button class="btn btn-primary" @click="storeBeneficiaries">Store Beneficiaries</button>
+        <button class="btn btn-primary" @click="storeBeneficiariesOnClick">Store Beneficiaries</button>
         <button class="btn btn-primary" @click="distributeInheritance">Distribute Inheritance</button>
       </div>
       <div class="results">
@@ -46,15 +46,12 @@ const { navigateToPage } = useCommon();
 const txtBeneficiaryAddress = ref(null);
 const txtTokenAddress = ref(null);
 const txtPercentage = ref(null);
-const { address } = useChain();
-const { encrypt_address, encryptedText } = useFHE();
+const { address, storeBeneficiaries } = useChain();
+const { encrypt, encrypt_address, encryptedText } = useFHE();
 
 const encryptedBeneficiaryAddress = ref('');
 const encryptedTokenAddress = ref('');
 const encryptedPercentage = ref('');
-
-const contractAddress = '0x841118047F42754332d0Ad4db8a2893761dD7F5d';
-const abi = [/* Inserisci qui l'ABI del contratto */];
 
 const encryptAddresses = async () => {
   const beneficiaryAddress = txtBeneficiaryAddress.value;
@@ -72,7 +69,7 @@ const encryptAddresses = async () => {
         encryptedTokenAddress.value = encryptedText.value;
         encryptedText.value = ''; // Reset encryptedText
 
-        await encrypt_address(percentage);
+        await encrypt(percentage);
         if (encryptedText.value !== '') {
           encryptedPercentage.value = encryptedText.value;
           encryptedText.value = ''; // Reset encryptedText
@@ -81,6 +78,15 @@ const encryptAddresses = async () => {
     }
   }
 };
+
+const storeBeneficiariesOnClick = async () => {
+  console.log("storeBeneficiaries called")
+  const beneficiaryAddress = txtBeneficiaryAddress.value;
+  const tokenAddress = txtTokenAddress.value;
+  const percentage = txtPercentage.value;
+
+  storeBeneficiaries(beneficiaryAddress.value, tokenAddress.value, parseInt(percentage.value))
+}
 
 // const storeBeneficiaries = async () => {
 //   if (encryptedBeneficiaryAddress.value && encryptedTokenAddress.value && encryptedPercentage.value) {
