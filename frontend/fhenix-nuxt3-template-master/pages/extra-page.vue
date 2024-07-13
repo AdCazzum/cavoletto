@@ -17,6 +17,8 @@
           <input ref="txtPercentage" id="percentage" class="form-control" type="number" placeholder="Enter Percentage" />
         </div>
         <button class="btn btn-primary" @click="encryptAddresses">Encrypt</button>
+        <button class="btn btn-primary" @click="storeBeneficiaries">Store Beneficiaries</button>
+        <button class="btn btn-primary" @click="distributeInheritance">Distribute Inheritance</button>
       </div>
       <div class="results">
         <div class="result-box" v-if="encryptedBeneficiaryAddress !== ''">
@@ -51,6 +53,9 @@ const encryptedBeneficiaryAddress = ref('');
 const encryptedTokenAddress = ref('');
 const encryptedPercentage = ref('');
 
+const contractAddress = '0x841118047F42754332d0Ad4db8a2893761dD7F5d';
+const abi = [/* Inserisci qui l'ABI del contratto */];
+
 const encryptAddresses = async () => {
   const beneficiaryAddress = txtBeneficiaryAddress.value;
   const tokenAddress = txtTokenAddress.value;
@@ -61,13 +66,11 @@ const encryptAddresses = async () => {
     if (encryptedText.value !== '') {
       encryptedBeneficiaryAddress.value = encryptedText.value;
       encryptedText.value = ''; // Reset encryptedText
-      await nextTick();
-      
+
       await encrypt_address(tokenAddress);
       if (encryptedText.value !== '') {
         encryptedTokenAddress.value = encryptedText.value;
         encryptedText.value = ''; // Reset encryptedText
-        await nextTick();
 
         await encrypt_address(percentage);
         if (encryptedText.value !== '') {
@@ -78,6 +81,25 @@ const encryptAddresses = async () => {
     }
   }
 };
+
+// const storeBeneficiaries = async () => {
+//   if (encryptedBeneficiaryAddress.value && encryptedTokenAddress.value && encryptedPercentage.value) {
+//     const addresses = [encryptedBeneficiaryAddress.value];
+//     const tokenAddresses = [encryptedTokenAddress.value];
+//     const percentages = [encryptedPercentage.value];
+//     const tx = await contract.storeBeneficiaries(addresses, tokenAddresses, percentages);
+//     await tx.wait();
+//     alert('Beneficiaries stored successfully!');
+//   } else {
+//     alert('Please encrypt all fields before storing beneficiaries.');
+//   }
+// };
+
+// const distributeInheritance = async () => {
+//   const tx = await contract.distributeInheritance();
+//   await tx.wait();
+//   alert('Inheritance distributed successfully!');
+// };
 </script>
 
 <style scoped>
