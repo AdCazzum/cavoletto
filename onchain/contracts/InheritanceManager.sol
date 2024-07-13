@@ -33,7 +33,7 @@ contract InheritanceManager {
         inEaddress[] calldata encryptedTokenAddresses,
         inEuint32[] calldata encryptedPercentages
     ) public {
-        // require(msg.sender == owner, "Only owner can store beneficiaries");
+        require(msg.sender == owner, "Only owner can store beneficiaries");
         require(
             encryptedAddresses.length == encryptedTokenAddresses.length &&
             encryptedTokenAddresses.length == encryptedPercentages.length,
@@ -45,19 +45,20 @@ contract InheritanceManager {
         }
     }
 
-    function _storeBeneficiary(inEaddress calldata encryptedAddress, inEaddress calldata encryptedTokenAddress, inEuint32 calldata encryptedPercentage) public {
-        encryptedBeneficiaries.push(EncryptedBeneficiary({
-            encryptedAddress: FHE.asEaddress(encryptedAddress),
-            encryptedTokenAddress: FHE.asEaddress(encryptedTokenAddress),
-            encryptedPercentage: FHE.asEuint32(encryptedPercentage)
-        }));
+    function _storeBeneficiary(
+        inEaddress calldata encryptedAddress, 
+        inEaddress calldata encryptedTokenAddress, 
+        inEuint32 calldata encryptedPercentage
+        ) public {
+            encryptedBeneficiaries.push(EncryptedBeneficiary({
+                encryptedAddress: FHE.asEaddress(encryptedAddress),
+                encryptedTokenAddress: FHE.asEaddress(encryptedTokenAddress),
+                encryptedPercentage: FHE.asEuint32(encryptedPercentage)
+            }));
     }
 
     function distributeInheritance() public {
-        Console.log("ciao");
-
         require(encryptedBeneficiaries.length > 0, "No beneficiaries stored");
-	Console.log("ciao");
 
         for (uint256 i = 0; i < encryptedBeneficiaries.length; i++) {
             eaddress encryptedBeneficiaryAddress = encryptedBeneficiaries[i].encryptedAddress;
@@ -69,17 +70,14 @@ contract InheritanceManager {
             address tokenAddress = FHE.decrypt(encryptedTokenAddress);
 
             // Calculate the amount to transfer based on encrypted percentage
-	    Console.log("ciao");
-	    Console.log(tokenAddress);
-	    foo = tokenAddress;
             uint256 tokenBalance = IERC20(tokenAddress).balanceOf(owner);
-            // euint32 encryptedTokenBalance = FHE.asEuint32(tokenBalance);
-            // euint32 encryptedAmount = (encryptedTokenBalance * encryptedPercentage) / FHE.asEuint32(100);
-            // uint32 decryptedValue = FHE.decrypt(encryptedAmount);
+            euint32 encryptedTokenBalance = FHE.asEuint32(tokenBalance);
+            euint32 encryptedAmount = (encryptedTokenBalance * encryptedPercentage) / FHE.asEuint32(100);
+            uint32 decryptedValue = FHE.decrypt(encryptedAmount);
 
-            // Transfer the amount from the owner to the beneficiary
-            // IERC20(tokenAddress).transferFrom(owner, beneficiaryAddress, decryptedValue);
-            // IERC20(tokenAddress).transferFrom(owner, beneficiaryAddress, 1);
+            Transfer the amount from the owner to the beneficiary
+            IERC20(tokenAddress).transferFrom(owner, beneficiaryAddress, decryptedValue);
+            IERC20(tokenAddress).transferFrom(owner, beneficiaryAddress, 1);
         }
     }
 
