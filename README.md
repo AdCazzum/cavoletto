@@ -20,4 +20,11 @@
 3. The amounts are computed and transferred
 4. Profit
 
+## Frontned
 
+```bash
+pnpm install
+pnpm localfhenix:start
+npx hardhat deploy
+npx hardhat test
+```
